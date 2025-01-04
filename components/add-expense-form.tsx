@@ -1,14 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button'; // Ensure this import is correct
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { addExpense } from '@/utils/sheets';
+import { useQueryClient } from '@tanstack/react-query';
 
 export function AddExpenseForm({ onSuccess }: { onSuccess: () => void }) {
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('Tea & Snacks');
   const [description, setDescription] = useState('');
+  const queryClient = useQueryClient();
 
   const handleSubmit = async () => {
     const expense = {
@@ -20,17 +24,22 @@ export function AddExpenseForm({ onSuccess }: { onSuccess: () => void }) {
       currency: 'USD',
     };
 
-    const response = await fetch('/api/expenses', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(expense),
-    });
-
-    if (response.ok) {
-      onSuccess(); // Refresh the expense list
+    const result = await addExpense(expense);
+    if (result.success) {
+      queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      onSuccess();
     } else {
-      console.error('Failed to add expense');
+      console.error('Failed to add expense:', result.error);
     }
+  };
+
+  // Fix for the number pad grid: ensure numbers are added correctly
+  const handleNumberClick = (num: string | number) => {
+    if (num === '') return; // Skip empty values
+    setAmount((prev) => {
+      const newAmount = prev + num.toString();
+      return newAmount;
+    });
   };
 
   return (
@@ -41,7 +50,7 @@ export function AddExpenseForm({ onSuccess }: { onSuccess: () => void }) {
           <span className="text-sm text-muted-foreground">USD</span>
         </div>
         <Input
-          type="number"
+          type="number" // This triggers the number pad on mobile
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           className="text-4xl font-bold text-center"
@@ -74,10 +83,25 @@ export function AddExpenseForm({ onSuccess }: { onSuccess: () => void }) {
           />
         </div>
 
-        {/* Add the Button component here */}
-        <Button onClick={handleSubmit} className="w-full">
-          Add Expense
-        </Button>
+        <div className="grid grid-cols-3 gap-2">
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9, '', 0].map((num, index) => (
+            <motion.button
+              key={index}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleNumberClick(num)}
+              className="p-4 text-2xl font-medium rounded-full hover:bg-primary/10"
+            >
+              {num}
+            </motion.button>
+          ))}
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={handleSubmit}
+            className="p-4 text-2xl font-medium bg-primary text-primary-foreground rounded-full"
+          >
+            →
+          </motion.button>
+        </div>
       </div>
     </div>
   );
