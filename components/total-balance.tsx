@@ -19,7 +19,7 @@ export function TotalBalance() {
         <CardTitle className="text-lg font-medium">Total Expenses</CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="text-4xl font-bold">{formatCurrency(totalBalance, 'USD')}</p>
+        <p className="text-4xl font-bold">{formatCurrency(totalBalance, 'INR')}</p>
       </CardContent>
     </Card>
   )
