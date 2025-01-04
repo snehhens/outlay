@@ -46,7 +46,7 @@ export function AddExpenseForm({ onSuccess }: { onSuccess: () => void }) {
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Add Amount</h2>
-          <span className="text-sm text-muted-foreground">USD</span>
+          <span className="text-sm text-muted-foreground">INR</span>
         </div>
         <Input
           type="number" // This triggers the number pad on mobile
