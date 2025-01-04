@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { formatCurrency } from '@/utils/format';
 import { Card, CardContent } from '@/components/ui/card';
 import { Expense } from '@/types/expense';
+import { getExpenses } from '@/utils/sheets'; // Import getExpenses
 
 const categoryIcons = {
   coffee: Coffee,
@@ -19,10 +20,7 @@ type CategoryIconKey = keyof typeof categoryIcons;
 export function ExpenseList() {
   const { data: expenses = [], isLoading, error } = useQuery({
     queryKey: ['expenses'],
-    queryFn: async () => {
-      const response = await fetch('/api/expenses');
-      return response.json();
-    },
+    queryFn: getExpenses, // Use getExpenses directly
   });
 
   if (isLoading) return <div>Loading expenses...</div>;
